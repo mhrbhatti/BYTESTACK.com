@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ByteStack Portfolio – Explore our work in web development, mobile apps, and digital marketing.">
+  <title>Portfolio – ByteStack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-trail" id="cursorTrail"></div>
+
+  <header class="nav-header scrolled" id="navbar">
+    <nav class="nav-container">
+      <a href="index.html" class="logo">BYTE<span>STACK</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li><li><a href="services.html">Services</a></li>
+        <li><a href="portfolio.html" class="active">Portfolio</a></li><li><a href="packages.html">Packages</a></li>
+        <li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li>
+      </ul>
+      <a href="contact.html" class="nav-cta">Let's Talk →</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </nav>
+    <div class="mobile-menu" id="mobileMenu"><ul>
+      <li><a href="index.html">Home</a></li><li><a href="services.html">Services</a></li>
+      <li><a href="portfolio.html">Portfolio</a></li><li><a href="packages.html">Packages</a></li>
+      <li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li>
+    </ul></div>
+  </header>
+
+  <div class="page-hero">
+    <div class="page-hero-content">
+      <div class="section-tag">Case Studies</div>
+      <h1>OUR<br><em>WORK</em></h1>
+      <p>Projects that pushed boundaries, solved real problems, and delivered measurable results.</p>
+    </div>
+  </div>
+
+  <section class="portfolio-full">
+    <div class="container">
+      <div class="portfolio-filter">
+        <button class="filter-btn active" data-filter="all">All Projects</button>
+        <button class="filter-btn" data-filter="Web">Web Dev</button>
+        <button class="filter-btn" data-filter="Mobile">Mobile</button>
+        <button class="filter-btn" data-filter="Marketing">Marketing</button>
+        <button class="filter-btn" data-filter="MERN">MERN Stack</button>
+      </div>
+
+      <div class="portfolio-masonry">
+        <div class="portfolio-item reveal" data-cat="Web">
+          <div class="portfolio-item-img p-bg-1">
+            <div class="portfolio-item-overlay">
+              <p>Full-Stack · E-Commerce</p>
+              <h4>ShopSphere</h4>
+              <a href="#" class="btn-ghost" style="margin-top:8px">View Case Study →</a>
+            </div>
+          </div>
+          <div class="portfolio-item-meta">
+            <span>Web Development</span>
+            <h4>ShopSphere — E-Commerce Platform</h4>
+          </div>
+        </div>
+
+        <div class="portfolio-item reveal" data-cat="Mobile">
+          <div class="portfolio-item-img tall p-bg-2">
+            <div class="portfolio-item-overlay">
+              <p>React Native · iOS & Android</p>
+              <h4>FitPulse</h4>
+              <a href="#" class="btn-ghost" style="margin-top:8px">View Case Study →</a>
+            </div>
+          </div>
+          <div class="portfolio-item-meta">
+            <span>Mobile App</span>
+            <h4>FitPulse — Fitness Tracking App</h4>
+          </div>
+        </div>
+
+        <div class="portfolio-item reveal" data-cat="Marketing">
+          <div class="portfolio-item-img p-bg-3">
+            <div class="portfolio-item-overlay">
+              <p>SEO + Content · SaaS</p>
+              <h4>GrowthOS</h4>
+              <a href="#" class="btn-ghost" style="margin-top:8px">View Case Study →</a>
+            </div>
+          </div>
+          <div class="portfolio-item-meta">
+            <span>Digital Marketing</span>
+            <h4>GrowthOS — SaaS Marketing</h4>
+          </div>
+        </div>
+
+        <div class="portfolio-item reveal" data-cat="MERN">
+          <div class="portfolio-item-img tall p-bg-4">
+            <div class="portfolio-item-overlay">
+              <p>MERN Stack · Real-Time</p>
+              <h4>TaskFlow</h4>
+              <a href="#" class="btn-ghost" style="margin-top:8px">View Case Study →</a>
+            </div>
+          </div>
+          <div class="portfolio-item-meta">
+            <span>MERN Stack</span>
+            <h4>TaskFlow — Project Management</h4>
+          </div>
+        </div>
+
+        <div class="portfolio-item reveal" data-cat="Web">
+          <div class="portfolio-item-img p-bg-5">
+            <div class="portfolio-item-overlay">
+              <p>Full-Stack · Cloud SaaS</p>
+              <h4>CloudSync</h4>
+              <a href="#" class="btn-ghost" style="margin-top:8px">View Case Study →</a>
+            </div>
+          </div>
+          <div class="portfolio-item-meta">
+            <span>Web Development</span>
+            <h4>CloudSync — Cloud Dashboard</h4>
+          </div>
+        </div>
+
+        <div class="portfolio-item reveal" data-cat="Marketing">
+          <div class="portfolio-item-img p-bg-6">
+            <div class="portfolio-item-overlay">
+              <p>Content Strategy · Brand</p>
+              <h4>BrandAxis</h4>
+              <a href="#" class="btn-ghost" style="margin-top:8px">View Case Study →</a>
+            </div>
+          </div>
+          <div class="portfolio-item-meta">
+            <span>Content + Marketing</span>
+            <h4>BrandAxis — Full Brand Overhaul</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS STRIP -->
+  <section class="section" style="background:var(--accent);padding:60px 0">
+    <div class="container">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:40px;text-align:center">
+        <div><div style="font-family:var(--font-display);font-size:4rem;color:#000;line-height:1">120+</div><p style="font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(0,0,0,0.6);margin-top:8px">Projects Completed</p></div>
+        <div><div style="font-family:var(--font-display);font-size:4rem;color:#000;line-height:1">40+</div><p style="font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(0,0,0,0.6);margin-top:8px">Happy Clients</p></div>
+        <div><div style="font-family:var(--font-display);font-size:4rem;color:#000;line-height:1">240%</div><p style="font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(0,0,0,0.6);margin-top:8px">Avg Revenue Increase</p></div>
+        <div><div style="font-family:var(--font-display);font-size:4rem;color:#000;line-height:1">98%</div><p style="font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(0,0,0,0.6);margin-top:8px">Client Satisfaction</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-banner">
+    <div class="cta-banner-bg"></div>
+    <div class="cta-content">
+      <h2 class="reveal">Your Project Could Be Next</h2>
+      <p class="reveal">Let's build something the world notices.</p>
+      <a href="contact.html" class="btn-primary reveal">Start a Project →</a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-brand"><div class="logo">BYTE<span>STACK</span></div><p>Building digital empires — one project at a time.</p><div class="social-links"><a href="#" aria-label="LinkedIn">in</a><a href="#" aria-label="Twitter">𝕏</a><a href="#" aria-label="Instagram">ig</a><a href="#" aria-label="GitHub">gh</a></div></div>
+      <div class="footer-links"><h4>Services</h4><ul><li><a href="services.html">Full-Stack Dev</a></li><li><a href="services.html">MERN Stack</a></li><li><a href="services.html">Mobile Apps</a></li><li><a href="services.html">Digital Marketing</a></li><li><a href="services.html">Content Dev</a></li></ul></div>
+      <div class="footer-links"><h4>Company</h4><ul><li><a href="about.html">About Us</a></li><li><a href="portfolio.html">Portfolio</a></li><li><a href="packages.html">Packages</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+      <div class="footer-contact"><h4>Get In Touch</h4><p>contact.bytestack@gmail.com</p><p>+92 317 8495506</p><a href="contact.html" class="btn-primary" style="margin-top:16px;display:inline-block">Contact Us</a></div>
+    </div>
+    <div class="footer-bottom" style="max-width:1280px;margin:0 auto;padding:24px 40px;display:flex;justify-content:space-between"><p style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted)">© 2024 ByteStack. All rights reserved.</p><p style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted)">Privacy Policy · Terms of Service</p></div>
+  </footer>
+  <script src="js/script.js"></script>
+  <script src="js/theme.js"></script>
+</body>
+</html>

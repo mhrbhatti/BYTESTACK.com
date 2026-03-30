@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Contact bytestack – Start your digital project today. Free consultation available.">
+  <title>Contact – bytestack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-trail" id="cursorTrail"></div>
+
+  <header class="nav-header scrolled" id="navbar">
+    <nav class="nav-container">
+      <a href="index.html" class="logo">BYTE<span>STACK</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li><li><a href="services.html">Services</a></li>
+        <li><a href="portfolio.html">Portfolio</a></li><li><a href="packages.html">Packages</a></li>
+        <li><a href="about.html">About</a></li><li><a href="contact.html" class="active">Contact</a></li>
+      </ul>
+      <a href="contact.html" class="nav-cta">Let's Talk →</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </nav>
+    <div class="mobile-menu" id="mobileMenu"><ul>
+      <li><a href="index.html">Home</a></li><li><a href="services.html">Services</a></li>
+      <li><a href="portfolio.html">Portfolio</a></li><li><a href="packages.html">Packages</a></li>
+      <li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li>
+    </ul></div>
+  </header>
+
+  <div class="page-hero">
+    <div class="page-hero-content">
+      <div class="section-tag">Get In Touch</div>
+      <h1>LET'S<br><em>TALK</em></h1>
+      <p>Tell us about your project. We'll get back to you within 24 hours with a tailored plan.</p>
+    </div>
+  </div>
+
+  <section class="contact-section">
+    <div class="container">
+      <div class="contact-grid">
+        <div class="contact-info reveal">
+          <h3>Start a Conversation</h3>
+          <p>Whether you have a complete spec or just a rough idea, we're ready to listen and help you shape it into something great.</p>
+
+          <div class="contact-detail">
+            <div class="contact-detail-icon">📧</div>
+            <div class="contact-detail-text">
+              <span>Email</span>
+              <p>contact.bytestack@gmail.com</p>
+            </div>
+          </div>
+          <div class="contact-detail">
+            <div class="contact-detail-icon">📞</div>
+            <div class="contact-detail-text">
+              <span>Phone</span>
+              <p>+92 317 8495506</p>
+            </div>
+          </div>
+          <div class="contact-detail">
+            <div class="contact-detail-icon">📍</div>
+            <div class="contact-detail-text">
+              <span>Location</span>
+              <p>Remote · Serving Global Clients</p>
+            </div>
+          </div>
+          <div class="contact-detail">
+            <div class="contact-detail-icon">⏰</div>
+            <div class="contact-detail-text">
+              <span>Response Time</span>
+              <p>Within 24 hours, always</p>
+            </div>
+          </div>
+
+          <div style="margin-top:40px">
+            <div style="font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:16px">Follow Us</div>
+            <div class="social-links">
+              <a href="#" aria-label="LinkedIn">in</a>
+              <a href="#" aria-label="Whatsapp">wa</a>
+              <a href="#" aria-label="Instagram">ig</a>
+              <a href="#" aria-label="GitHub">gh</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-form-wrap reveal">
+          <form id="contactForm" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="fname">First Name *</label>
+                <input type="text" id="fname" name="fname" placeholder="Salar" required>
+              </div>
+              <div class="form-group">
+                <label for="lname">Last Name *</label>
+                <input type="text" id="lname" name="lname" placeholder="Skiandar" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" placeholder="salar@company.com" required>
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" placeholder="+92 XXX XXXXXXX">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="service">Service Interested In *</label>
+              <select id="service" name="service" required>
+                <option value="" disabled selected>Select a service...</option>
+                <option>Full-Stack Web Development</option>
+                <option>MERN Stack Application</option>
+                <option>Mobile App Development</option>
+                <option>Digital Marketing</option>
+                <option>Content Development</option>
+                <option>Custom Package</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="budget">Budget Range</label>
+                <select id="budget" name="budget">
+                  <option value="" disabled selected>Select budget...</option>
+                  <option>Under $1,000</option>
+                  <option>$1,000 – $5,000</option>
+                  <option>$5,000 – $15,000</option>
+                  <option>$15,000 – $50,000</option>
+                  <option>$50,000+</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="timeline">Project Timeline</label>
+                <select id="timeline" name="timeline">
+                  <option value="" disabled selected>Select timeline...</option>
+                  <option>ASAP (Rush)</option>
+                  <option>1–2 Months</option>
+                  <option>3–6 Months</option>
+                  <option>6+ Months</option>
+                  <option>Ongoing Retainer</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="message">Tell Us About Your Project *</label>
+              <textarea id="message" name="message" placeholder="Describe your project, goals, and any specific requirements..." required></textarea>
+            </div>
+            <button type="submit" class="btn-primary form-submit">Send Message →</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FULL FAQ on Contact Page -->
+  <section class="section faq-section" style="border-top:1px solid var(--border)">
+    <div class="container faq-container">
+      <div class="faq-left">
+        <div class="section-tag">FAQ</div>
+        <h2 class="section-title">Quick <em>Answers</em></h2>
+        <p>Can't find your answer? <a href="mailto:contact.bytestack@gmail.com">Email us directly.</a></p>
+      </div>
+      <div class="faq-right">
+        <div class="faq-item reveal">
+          <button class="faq-q">How do we start working together? <span>+</span></button>
+          <div class="faq-a"><p>Fill out the form above, and we'll schedule a free 30-minute discovery call within 24 hours. We'll use that time to understand your goals and propose a plan.</p></div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-q">What information do you need upfront? <span>+</span></button>
+          <div class="faq-a"><p>The more context the better, but even a rough idea is fine. We'll guide you through the discovery process to define scope, timeline, and budget together.</p></div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-q">Do you sign NDAs? <span>+</span></button>
+          <div class="faq-a"><p>Absolutely. Client confidentiality is paramount. We'll sign an NDA before any sensitive information is shared during our discovery conversations.</p></div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-q">What happens after the project launches? <span>+</span></button>
+          <div class="faq-a"><p>Every project includes a support period (30–90 days depending on package). After that, we offer monthly maintenance and growth retainers to keep your platform optimized.</p></div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-q">How do you handle revisions? <span>+</span></button>
+          <div class="faq-a"><p>All packages include revision rounds at each milestone. We work iteratively with you — sharing progress frequently so there are never any surprises at the finish line.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-brand"><div class="logo">BYTE<span>STACK</span></div><p>Building digital empires — one project at a time.</p>
+      <div class="social-links">
+              <a href="" aria-label="LinkedIn">in</a>
+              <a href="#" aria-label="Whatsapp">wa</a>
+              <a href="#" aria-label="Instagram">ig</a>
+              <a href="#" aria-label="GitHub">gh</a>
+            </div>
+            </div>
+      <div class="footer-links"><h4>Services</h4><ul><li><a href="services.html">Full-Stack Dev</a></li><li><a href="services.html">MERN Stack</a></li><li><a href="services.html">Mobile Apps</a></li><li><a href="services.html">Digital Marketing</a></li><li><a href="services.html">Content Dev</a></li></ul></div>
+      <div class="footer-links"><h4>Company</h4><ul><li><a href="about.html">About Us</a></li><li><a href="portfolio.html">Portfolio</a></li><li><a href="packages.html">Packages</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+      <div class="footer-contact"><h4>Get In Touch</h4><p>contact.bytestack@gmail.com</p><p>+92 317 8495506</p><a href="contact.html" class="btn-primary" style="margin-top:16px;display:inline-block">Contact Us</a></div>
+    </div>
+    <div class="footer-bottom" style="max-width:1280px;margin:0 auto;padding:24px 40px;display:flex;justify-content:space-between"><p style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted)">© 2024 bytestack. All rights reserved.</p><p style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted)">Privacy Policy · Terms of Service</p></div>
+  </footer>
+  <script src="js/script.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/contact-mailer.js"></script> 
+</body>
+</html>
