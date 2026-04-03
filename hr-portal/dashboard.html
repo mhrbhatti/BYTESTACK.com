@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ByteStack HR — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div class="top-accent"></div>
+<div class="app-layout">
+  <div id="layout-sidebar"></div>
+  <div class="main-area">
+    <div class="topbar" id="topbar"></div>
+    <div class="content-area">
+
+      <!-- STATS -->
+      <div class="stats-grid stats-4 mb16" id="dash-stats"></div>
+
+      <!-- MAIN GRID -->
+      <div class="grid-main-side">
+
+        <!-- LEFT -->
+        <div class="col-gap">
+          <!-- Attendance Chart -->
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">ATTENDANCE OVERVIEW</div><div class="card-subtitle">Last 7 days</div></div>
+              <div style="display:flex;gap:14px;align-items:center">
+                <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><div style="width:9px;height:9px;border-radius:2px;background:var(--accent)"></div>Present</div>
+                <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"><div style="width:9px;height:9px;border-radius:2px;background:var(--red)"></div>Absent</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:8px;height:110px" id="att-chart"></div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">RECENT ACTIVITY</div><span style="font-family:var(--M);font-size:9px;color:var(--text3);letter-spacing:.1em">TODAY</span></div>
+            <div class="timeline" id="dash-activity"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col-gap">
+          <!-- Quick Actions -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">QUICK ACTIONS</div></div>
+            <div style="display:flex;flex-direction:column;gap:7px" id="quick-actions"></div>
+          </div>
+
+          <!-- Pending Leaves -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">PENDING LEAVES</div><span id="pending-badge" class="badge badge-yellow">0</span></div>
+            <div id="pending-leaves-list"></div>
+          </div>
+
+          <!-- Upcoming Events -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">UPCOMING</div></div>
+            <div style="display:flex;flex-direction:column;gap:7px" id="upcoming-events"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="notif-panel" id="notif-panel"></div>
+
+<!-- ADD EMPLOYEE MODAL -->
+<div class="modal-overlay" id="modal-addEmp">
+  <div class="modal">
+    <div class="modal-header"><div><div class="modal-title">ADD EMPLOYEE</div></div><button class="modal-close" onclick="closeModal('addEmp')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid-2">
+        <div class="form-group"><label class="form-label required">First Name</label><input class="form-input" id="e-first" placeholder="First name"></div>
+        <div class="form-group"><label class="form-label required">Last Name</label><input class="form-input" id="e-last" placeholder="Last name"></div>
+        <div class="form-group"><label class="form-label required">Email</label><input type="email" class="form-input" id="e-email" placeholder="email@bytestack.io"></div>
+        <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="e-phone" placeholder="+92 xxx xxxxxxx"></div>
+        <div class="form-group"><label class="form-label required">Job Title</label><input class="form-input" id="e-role" placeholder="e.g. Senior Developer"></div>
+        <div class="form-group"><label class="form-label">Department</label><select class="form-input" id="e-dept"><option>Development</option><option>Marketing</option><option>Design</option><option>Content</option><option>Leadership</option></select></div>
+        <div class="form-group"><label class="form-label">Join Date</label><input type="date" class="form-input" id="e-date"></div>
+        <div class="form-group"><label class="form-label">Salary (PKR)</label><input type="number" class="form-input" id="e-salary" placeholder="50000"></div>
+        <div class="form-group"><label class="form-label">Employee ID</label><input class="form-input" id="e-id" placeholder="BS-2024-XXX"></div>
+        <div class="form-group"><label class="form-label">Employment Type</label><select class="form-input" id="e-type"><option>Full-time</option><option>Part-time</option><option>Contract</option><option>Intern</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('addEmp')">Cancel</button>
+      <button class="btn btn-primary" onclick="doAddEmp()">Add Employee</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script src="js/data.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/layout.js"></script>
+<script>
+Layout.init('dashboard','Dashboard','Welcome back');
+
+function renderDash() {
+  const session = Auth.getSession();
+  const emps = DB.getAll('employees');
+  const active = emps.filter(e=>e.status==='Active').length;
+  const onLeave = emps.filter(e=>e.status==='On Leave').length;
+  const pending = DB.getPendingLeaves().length;
+  const jobs = DB.getAll('jobs').filter(j=>j.status==='Active').length;
+
+  // Stats
+  document.getElementById('dash-stats').innerHTML = [
+    {color:'yellow',icon:'👥',num:emps.length,label:'Total Employees',change:'↑ 2 this month'},
+    {color:'teal',  icon:'✅',num:active,     label:'Active Today',   change:Math.round(active/emps.length*100)+'% present'},
+    {color:'red',   icon:'🏖️',num:onLeave,   label:'On Leave',       change:pending+' pending approval'},
+    {color:'blue',  icon:'🎯',num:jobs,       label:'Open Positions', change:DB.getAll('applicants').length+' applicants'},
+  ].map(s=>`<div class="stat-card ${s.color}"><div class="sc-icon">${s.icon}</div><div class="sc-num">${s.num}</div><div class="sc-label">${s.label}</div><div class="sc-change">${s.change}</div></div>`).join('');
+
+  // Attendance chart
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const pres = [20,22,21,19,21,8,0];
+  const abs  = [4,2,3,5,3,2,0];
+  const max  = 27;
+  document.getElementById('att-chart').innerHTML = days.map((d,i)=>`
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+      <div style="width:100%;display:flex;flex-direction:column;justify-content:flex-end;flex:1;gap:2px">
+        <div style="height:${(pres[i]/max)*100}%;background:var(--accent);border-radius:3px 3px 0 0;min-height:${pres[i]?4:0}px;transition:height .6s ease" title="${pres[i]} present"></div>
+        <div style="height:${(abs[i]/max)*40}%;background:var(--red);border-radius:3px 3px 0 0;min-height:${abs[i]?3:0}px;transition:height .6s ease" title="${abs[i]} absent"></div>
+      </div>
+      <div style="font-family:var(--M);font-size:8px;color:var(--text3);letter-spacing:.08em">${d}</div>
+    </div>`).join('');
+
+  // Activity
+  const acts = [
+    {icon:'✅',bg:'rgba(0,204,136,.1)',bc:'rgba(0,204,136,.3)',title:'Sara Khan checked in',meta:'09:02 AM · Development'},
+    {icon:'📋',bg:'rgba(255,140,0,.1)', bc:'rgba(255,140,0,.3)', title:'Leave request from Marcus Hill',meta:'08:45 AM · 3 days Annual Leave'},
+    {icon:'🎯',bg:'rgba(68,136,255,.1)',bc:'rgba(68,136,255,.3)',title:'New applicant: MERN Developer',meta:'08:30 AM · Recruitment'},
+    {icon:'💰',bg:'rgba(232,255,0,.08)',bc:'rgba(232,255,0,.2)', title:'May payroll processed',meta:'Yesterday · PKR 1,240,000'},
+    {icon:'🎓',bg:'rgba(255,68,68,.1)', bc:'rgba(255,68,68,.3)', title:'React training completed',meta:'Yesterday · 6 employees'},
+  ];
+  document.getElementById('dash-activity').innerHTML = acts.map((a,i)=>`
+    <div class="tl-item">
+      <div class="tl-dot" style="background:${a.bg};border-color:${a.bc}">${a.icon}</div>
+      <div><div class="tl-title">${a.title}</div><div class="tl-meta">${a.meta}</div></div>
+    </div>`).join('');
+
+  // Quick actions
+  const isAdmin = Auth.isAdmin();
+  const actions = [
+    {label:'+ Add Employee',cls:'btn-primary',fn:"openModal('addEmp')",show:isAdmin},
+    {label:'🏖️ Approve Leave',cls:'btn-ghost',fn:"location.href='leaves.html'",show:Auth.isManager()},
+    {label:'💰 Run Payroll',cls:'btn-ghost',fn:"location.href='payroll.html'",show:isAdmin},
+    {label:'🎯 Post Job',cls:'btn-ghost',fn:"location.href='recruitment.html'",show:isAdmin},
+    {label:'📢 Announce',cls:'btn-ghost',fn:"location.href='announcements.html'",show:Auth.isManager()},
+    {label:'📊 View Reports',cls:'btn-ghost',fn:"location.href='reports.html'",show:isAdmin},
+  ].filter(a=>a.show);
+  document.getElementById('quick-actions').innerHTML = actions.map(a=>`<button class="btn ${a.cls}" style="width:100%;justify-content:center" onclick="${a.fn}">${a.label}</button>`).join('');
+
+  // Pending leaves
+  const pl = DB.getPendingLeaves();
+  document.getElementById('pending-badge').textContent = pl.length;
+  document.getElementById('pending-leaves-list').innerHTML = pl.length ? pl.map(l=>`
+    <div style="background:var(--surface);border-radius:6px;padding:11px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        ${UI.avatar(l.emp,'Development',26)}
+        <div><div style="font-size:13px;font-weight:500">${l.emp}</div><div style="font-family:var(--M);font-size:8px;color:var(--text3)">${l.type} · ${l.days} day${l.days>1?'s':''}</div></div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-success btn-sm" style="flex:1;justify-content:center" onclick="approveLeave('${l.id}',this)">✓ Approve</button>
+        <button class="btn btn-danger btn-sm" style="flex:1;justify-content:center" onclick="rejectLeave('${l.id}',this)">✕ Reject</button>
+      </div>
+    </div>`).join('') : '<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">No pending leaves</div></div>';
+
+  // Upcoming
+  const events = [
+    {icon:'🎂',title:"Ali Raza's Birthday",sub:'Tomorrow · Jun 9'},
+    {icon:'🏆',title:"Sara Khan - 6 Month Anniversary",sub:'Jun 12'},
+    {icon:'🎂',title:"Omar Butt's Birthday",sub:'Jun 18'},
+    {icon:'🏖️',title:'Eid ul-Adha Holiday',sub:'Jun 17 · Office Closed'},
+    {icon:'🎓',title:'React Training Starts',sub:'Jun 17 · 6 enrolled'},
+  ];
+  document.getElementById('upcoming-events').innerHTML = events.map(e=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px;background:var(--surface);border-radius:6px">
+      <span style="font-size:18px">${e.icon}</span>
+      <div><div style="font-size:12px;font-weight:500">${e.title}</div><div style="font-family:var(--M);font-size:8px;color:var(--text3);margin-top:1px">${e.sub}</div></div>
+    </div>`).join('');
+}
+
+function approveLeave(id, btn) {
+  DB.update('leaves', id, {status:'Approved', approvedBy: Auth.getSession().name});
+  Auth.logActivity('Leave approved for ' + DB.getById('leaves',id)?.emp);
+  UI.toast('Leave approved!');
+  renderDash();
+}
+function rejectLeave(id, btn) {
+  DB.update('leaves', id, {status:'Rejected'});
+  UI.toast('Leave rejected.', 'error');
+  renderDash();
+}
+
+function doAddEmp() {
+  const g = id => document.getElementById(id).value.trim();
+  if (!g('e-first') || !g('e-role')) { UI.toast('Fill required fields', 'error'); return; }
+  const id = g('e-id') || DB.nextId('employees','BS');
+  DB.add('employees', {
+    id, first:g('e-first'), last:g('e-last'), email:g('e-email'), phone:g('e-phone'),
+    role:g('e-role'), dept:g('e-dept'), type:g('e-type'),
+    salary:+g('e-salary')||50000, join:g('e-date')||new Date().toISOString().slice(0,10),
+    status:'Active', dob:'', address:'', emergency:'', skills:[], notes:''
+  });
+  Auth.logActivity('Added employee: '+g('e-first')+' '+g('e-last'));
+  closeModal('addEmp');
+  UI.toast('Employee added!');
+  ['e-first','e-last','e-email','e-phone','e-role','e-salary','e-id'].forEach(i=>document.getElementById(i).value='');
+  renderDash();
+}
+
+renderDash();
+</script>
+</body>
+</html>

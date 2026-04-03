@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ByteStack HR — Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div class="top-accent"></div>
+<div class="app-layout">
+  <div id="layout-sidebar"></div>
+  <div class="main-area">
+    <div class="topbar" id="topbar"></div>
+    <div class="content-area" id="main-content"></div>
+  </div>
+</div>
+<div class="notif-panel" id="notif-panel"></div>
+<script src="js/auth.js"></script>
+<script src="js/data.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/layout.js"></script>
+<script>
+Layout.init('profile','My Profile','Your account & details');
+const session = Auth.getSession();
+const emp = DB.getAll('employees').find(e => e.email === session.email);
+const deptColor = UI.deptColor(emp?.dept || 'Development');
+const bal = emp ? DB.getEmployeeLeaveBalance(emp.id) : {};
+const logs = Auth.getActivityLog().slice(0, 10);
+
+document.getElementById('main-content').innerHTML = `
+  <div class="grid-main-side">
+    <div class="col-gap">
+      <div class="card">
+        <div class="profile-header">
+          <div class="profile-avatar" style="background:${deptColor}22;color:${deptColor};width:72px;height:72px;font-size:22px">${UI.initials(session.name)}</div>
+          <div>
+            <div class="profile-name">${session.name}</div>
+            <div class="profile-role">${session.title} · ${session.dept}</div>
+            <div style="margin-top:6px">${UI.badge('Active')}</div>
+          </div>
+        </div>
+        ${emp ? `
+        <div style="font-family:var(--M);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Personal Info</div>
+        ${[['Employee ID',emp.id],['Email',emp.email],['Phone',emp.phone||'—'],['Department',emp.dept],['Role',emp.role],['Employment Type',emp.type],['Join Date',UI.formatDate(emp.join)],['Salary',UI.formatCurrency(emp.salary)],['Address',emp.address||'—']].map(([l,v])=>`<div class="info-row"><div class="info-label">${l}</div><div>${v}</div></div>`).join('')}
+        ` : `<div class="alert alert-info">No employee record linked to this account.</div>`}
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">EDIT PROFILE</div></div>
+        <div class="form-grid-2">
+          <div class="form-group"><label class="form-label">Display Name</label><input class="form-input" value="${session.name}" id="p-name"></div>
+          <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" value="${session.email}" id="p-email"></div>
+          <div class="form-group"><label class="form-label">Phone</label><input class="form-input" value="${emp?.phone||''}" id="p-phone"></div>
+          <div class="form-group"><label class="form-label">Address</label><input class="form-input" value="${emp?.address||''}" id="p-addr"></div>
+          <div class="form-group span-2"><button class="btn btn-primary" onclick="saveProfile()">Save Changes</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-gap">
+      <div class="card">
+        <div class="card-header"><div class="card-title">LEAVE BALANCE</div></div>
+        ${Object.entries(bal).map(([type, b]) => `
+          <div style="margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+              <span style="font-size:13px;font-weight:500">${type} Leave</span>
+              <span style="font-family:var(--M);font-size:11px;color:var(--accent)">${b.remaining} / ${b.total} days left</span>
+            </div>
+            ${UI.progress(b.remaining, b.total, 'var(--accent)')}
+            <div style="font-family:var(--M);font-size:9px;color:var(--text3);margin-top:4px">${b.used} days used</div>
+          </div>`).join('')}
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">MY LEAVES</div><a href="leaves.html" class="btn btn-ghost btn-sm">View All →</a></div>
+        ${DB.getAll('leaves').filter(l=>l.empId===emp?.id).slice(0,5).map(l=>`
+          <div style="padding:9px;background:var(--surface);border-radius:6px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
+            <div><div style="font-size:13px;font-weight:500">${l.type} Leave · ${l.days} day${l.days>1?'s':''}</div>
+            <div style="font-family:var(--M);font-size:9px;color:var(--text3)">${UI.formatDate(l.from)} → ${UI.formatDate(l.to)}</div></div>
+            ${UI.badge(l.status)}
+          </div>`).join('') || '<div class="empty-state" style="padding:20px"><div class="empty-icon">🏖️</div><div class="empty-title">No leaves yet</div></div>'}
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">ACTIVITY LOG</div></div>
+        <div style="max-height:200px;overflow-y:auto">
+          ${logs.map(l=>`<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--text2)"><span style="color:var(--text)">${l.msg}</span><div style="font-family:var(--M);font-size:9px;color:var(--text3);margin-top:2px">${UI.timeAgo(l.time)}</div></div>`).join('') || '<div style="color:var(--text3);font-size:13px;padding:8px 0">No activity yet</div>'}
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+function saveProfile() {
+  if (emp) {
+    DB.update('employees', emp.id, { phone: document.getElementById('p-phone').value, address: document.getElementById('p-addr').value });
+  }
+  Auth.logActivity('Profile updated');
+  UI.toast('Profile saved!');
+}
+</script>
+</body>
+</html>

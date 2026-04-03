@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ByteStack HR — Employees</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div class="top-accent"></div>
+<div class="app-layout">
+  <div id="layout-sidebar"></div>
+  <div class="main-area">
+    <div class="topbar" id="topbar"></div>
+    <div class="content-area">
+
+      <div class="filter-bar mb16">
+        <div class="tabs-bar" style="flex:1;min-width:260px">
+          <button class="tab-btn active" onclick="switchView('cards',this)">Card View</button>
+          <button class="tab-btn" onclick="switchView('table',this)">Table View</button>
+        </div>
+        <input class="form-input" style="width:200px" placeholder="🔍 Search employees…" oninput="filterEmps(this.value)">
+        <select class="form-input" style="width:160px" onchange="filterEmps(undefined,this.value)">
+          <option value="">All Departments</option>
+          <option>Leadership</option><option>Development</option>
+          <option>Marketing</option><option>Design</option><option>Content</option>
+        </select>
+        <select class="form-input" style="width:140px" onchange="filterEmps(undefined,undefined,this.value)">
+          <option value="">All Status</option>
+          <option>Active</option><option>On Leave</option><option>Inactive</option>
+        </select>
+        <button class="btn btn-primary" onclick="openModal('addEmp')">+ Add Employee</button>
+      </div>
+
+      <div id="emp-cards-view"><div class="emp-grid" id="emp-grid"></div></div>
+      <div id="emp-table-view" style="display:none">
+        <div class="card"><div class="table-wrap"><table>
+          <thead><tr><th>Employee</th><th>ID</th><th>Department</th><th>Role</th><th>Status</th><th>Join Date</th><th>Salary</th><th>Type</th><th>Actions</th></tr></thead>
+          <tbody id="emp-tbody"></tbody>
+        </table></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="notif-panel" id="notif-panel"></div>
+
+<!-- ADD/EDIT EMPLOYEE MODAL -->
+<div class="modal-overlay" id="modal-addEmp">
+  <div class="modal modal-lg">
+    <div class="modal-header"><div><div class="modal-title" id="emp-modal-title">ADD EMPLOYEE</div></div><button class="modal-close" onclick="closeModal('addEmp')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid-2">
+        <div class="form-group"><label class="form-label required">First Name</label><input class="form-input" id="e-first"></div>
+        <div class="form-group"><label class="form-label required">Last Name</label><input class="form-input" id="e-last"></div>
+        <div class="form-group"><label class="form-label required">Email</label><input type="email" class="form-input" id="e-email"></div>
+        <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="e-phone"></div>
+        <div class="form-group"><label class="form-label required">Job Title</label><input class="form-input" id="e-role"></div>
+        <div class="form-group"><label class="form-label">Department</label><select class="form-input" id="e-dept"><option>Development</option><option>Marketing</option><option>Design</option><option>Content</option><option>Leadership</option></select></div>
+        <div class="form-group"><label class="form-label">Employee ID</label><input class="form-input" id="e-id"></div>
+        <div class="form-group"><label class="form-label">Employment Type</label><select class="form-input" id="e-type"><option>Full-time</option><option>Part-time</option><option>Contract</option><option>Intern</option></select></div>
+        <div class="form-group"><label class="form-label">Join Date</label><input type="date" class="form-input" id="e-date"></div>
+        <div class="form-group"><label class="form-label">Salary (PKR)</label><input type="number" class="form-input" id="e-salary"></div>
+        <div class="form-group"><label class="form-label">Status</label><select class="form-input" id="e-status"><option>Active</option><option>On Leave</option><option>Inactive</option></select></div>
+        <div class="form-group"><label class="form-label">Date of Birth</label><input type="date" class="form-input" id="e-dob"></div>
+        <div class="form-group span-2"><label class="form-label">Address</label><input class="form-input" id="e-address"></div>
+        <div class="form-group span-2"><label class="form-label">Emergency Contact</label><input class="form-input" id="e-emergency" placeholder="Name · Phone"></div>
+        <div class="form-group span-2"><label class="form-label">Notes</label><textarea class="form-input" id="e-notes" rows="2"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('addEmp')">Cancel</button>
+      <button class="btn btn-primary" id="emp-save-btn" onclick="saveEmp()">Add Employee</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW EMPLOYEE MODAL -->
+<div class="modal-overlay" id="modal-viewEmp">
+  <div class="modal modal-lg">
+    <div class="modal-header"><div class="modal-title">EMPLOYEE PROFILE</div><button class="modal-close" onclick="closeModal('viewEmp')">✕</button></div>
+    <div class="modal-body" id="view-emp-body"></div>
+    <div class="modal-footer" id="view-emp-footer"></div>
+  </div>
+</div>
+
+<script src="js/auth.js"></script><script src="js/data.js"></script><script src="js/ui.js"></script><script src="js/layout.js"></script>
+<script src="js/mailer.js"></script>
+<script>
+Layout.init('employees','Employees','Manage your team',{label:'+ Add Employee',fn:"openModal('addEmp')"});
+let editingId = null;
+let filterQ = '', filterDept = '', filterStatus = '';
+
+function renderEmps() {
+  let emps = DB.getAll('employees');
+  if (filterQ) emps = emps.filter(e=>(e.first+' '+e.last+e.role+e.dept).toLowerCase().includes(filterQ.toLowerCase()));
+  if (filterDept) emps = emps.filter(e=>e.dept===filterDept);
+  if (filterStatus) emps = emps.filter(e=>e.status===filterStatus);
+
+  const grid = document.getElementById('emp-grid');
+  if (grid) {
+    if (!emps.length) { grid.innerHTML='<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No employees found</div></div>'; }
+    else grid.innerHTML = emps.map(e=>{
+      const c = UI.deptColor(e.dept);
+      return `<div class="emp-card" onclick="viewEmp('${e.id}')" style="--ec:${c}">
+        <div class="ec-avatar" style="background:${c}22;color:${c}">${UI.initials(e.first+' '+e.last)}</div>
+        <div class="ec-name">${e.first} ${e.last}</div>
+        <div class="ec-role">${e.role}</div>
+        <div class="ec-dept" style="background:${c}18;color:${c}">${e.dept}</div>
+        ${UI.badge(e.status)}
+        <div class="ec-stats">
+          <div><div class="ec-stat-num">${e.join.slice(0,4)}</div><div class="ec-stat-lbl">Joined</div></div>
+          <div><div class="ec-stat-num">${UI.formatCurrency(e.salary).replace('PKR ','')}</div><div class="ec-stat-lbl">Salary</div></div>
+        </div>
+      </div>`;}).join('');
+  }
+
+  const tbody = document.getElementById('emp-tbody');
+  if (tbody) tbody.innerHTML = emps.map(e=>`<tr>
+    <td class="td-bold"><div class="avatar-row">${UI.avatar(e.first+' '+e.last,e.dept)}<div class="avatar-info"><div class="name">${e.first} ${e.last}</div><div class="sub">${e.email}</div></div></div></td>
+    <td class="td-mono">${e.id}</td><td>${e.dept}</td><td>${e.role}</td>
+    <td>${UI.badge(e.status)}</td><td>${UI.formatDate(e.join)}</td>
+    <td>${UI.formatCurrency(e.salary)}</td><td>${e.type}</td>
+    <td><div class="td-actions">
+      <button class="btn btn-ghost btn-icon" onclick="editEmp('${e.id}');event.stopPropagation()">✏️</button>
+      <button class="btn btn-ghost btn-icon" title="Resend Credentials" onclick="resendCreds('${e.id}');event.stopPropagation()">📧</button><button class="btn btn-danger btn-icon" onclick="delEmp('${e.id}');event.stopPropagation()">🗑️</button>
+    </div></td></tr>`).join('');
+}
+
+function filterEmps(q, dept, status) {
+  if (q!==undefined) filterQ = q;
+  if (dept!==undefined) filterDept = dept;
+  if (status!==undefined) filterStatus = status;
+  renderEmps();
+}
+
+function switchView(view, btn) {
+  document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('emp-cards-view').style.display = view==='cards' ? '' : 'none';
+  document.getElementById('emp-table-view').style.display = view==='table' ? '' : 'none';
+}
+
+function openAddEmp() {
+  editingId = null;
+  document.getElementById('emp-modal-title').textContent = 'ADD EMPLOYEE';
+  document.getElementById('emp-save-btn').textContent = 'Add Employee';
+  ['e-first','e-last','e-email','e-phone','e-role','e-id','e-salary','e-address','e-emergency','e-notes','e-dob'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('e-dept').value='Development';
+  document.getElementById('e-type').value='Full-time';
+  document.getElementById('e-status').value='Active';
+  document.getElementById('e-date').value=new Date().toISOString().slice(0,10);
+  openModal('addEmp');
+}
+window.openModal = (id) => { if(id==='addEmp') openAddEmp(); else UI.openModal(id); };
+
+function editEmp(id) {
+  const e = DB.getById('employees',id);
+  if (!e) return;
+  editingId = id;
+  document.getElementById('emp-modal-title').textContent = 'EDIT EMPLOYEE';
+  document.getElementById('emp-save-btn').textContent = 'Save Changes';
+  ['first','last','email','phone','role','id','address','emergency','notes','dob'].forEach(f=>{
+    const el = document.getElementById('e-'+f); if(el) el.value = e[f]||'';
+  });
+  document.getElementById('e-salary').value = e.salary;
+  document.getElementById('e-dept').value = e.dept;
+  document.getElementById('e-type').value = e.type;
+  document.getElementById('e-status').value = e.status;
+  document.getElementById('e-date').value = e.join;
+  UI.openModal('addEmp');
+}
+
+function saveEmp() {
+  const g = id => document.getElementById(id)?.value?.trim();
+  if (!g('e-first')||!g('e-role')) { UI.toast('Fill required fields','error'); return; }
+  const data = {
+    first:g('e-first'),last:g('e-last'),email:g('e-email'),phone:g('e-phone'),
+    role:g('e-role'),dept:g('e-dept'),type:g('e-type'),status:g('e-status'),
+    salary:+g('e-salary')||50000, join:g('e-date')||new Date().toISOString().slice(0,10),
+    dob:g('e-dob'),address:g('e-address'),emergency:g('e-emergency'),notes:g('e-notes'),
+  };
+  if (editingId) {
+    DB.update('employees',editingId,data);
+    Auth.logActivity('Updated employee: '+data.first+' '+data.last);
+    UI.toast('Employee updated!');
+    UI.closeModal('addEmp');
+    renderEmps();
+  } else {
+    data.id = g('e-id') || DB.nextId('employees','BS');
+    data.skills = [];
+    const newEmp = DB.add('employees',data);
+    Auth.logActivity('Added employee: '+data.first+' '+data.last);
+
+    // Send credentials email
+    const tempPwd = Mailer.sendCredentials(newEmp || data, (success, pwd) => {
+      if (success) {
+        UI.toast('✓ Employee added & credentials emailed to '+data.email+'!');
+      } else {
+        // Show credentials in modal if email failed
+        UI.toast('Employee added! Email failed — copy credentials below.', 'error');
+        showCredentialFallback(data.email, pwd);
+      }
+    });
+
+    UI.closeModal('addEmp');
+    renderEmps();
+    // Optimistic toast
+    UI.toast('Adding employee & sending credentials…');
+  }
+}
+
+function viewEmp(id) {
+  const e = DB.getById('employees',id);
+  if (!e) return;
+  const c = UI.deptColor(e.dept);
+  const bal = DB.getEmployeeLeaveBalance(id);
+  document.getElementById('view-emp-body').innerHTML = `
+    <div class="profile-header">
+      <div class="profile-avatar" style="background:${c}22;color:${c};width:72px;height:72px;font-size:22px">${UI.initials(e.first+' '+e.last)}</div>
+      <div><div class="profile-name">${e.first} ${e.last}</div><div class="profile-role">${e.role} · ${e.dept}</div>${UI.badge(e.status)}</div>
+    </div>
+    <div class="grid-2">
+      <div>
+        <div style="font-family:var(--M);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Personal Info</div>
+        ${[['Employee ID',e.id],['Email',e.email],['Phone',e.phone||'—'],['Date of Birth',UI.formatDate(e.dob)||'—'],['Address',e.address||'—'],['Emergency',e.emergency||'—']].map(([l,v])=>`<div class="info-row"><div class="info-label">${l}</div><div>${v}</div></div>`).join('')}
+      </div>
+      <div>
+        <div style="font-family:var(--M);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Employment Info</div>
+        ${[['Department',e.dept],['Type',e.type],['Join Date',UI.formatDate(e.join)],['Salary',UI.formatCurrency(e.salary)],['Notes',e.notes||'—']].map(([l,v])=>`<div class="info-row"><div class="info-label">${l}</div><div>${v}</div></div>`).join('')}
+        <div style="font-family:var(--M);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--text3);margin:14px 0 8px">Leave Balance</div>
+        ${Object.entries(bal).map(([t,b])=>`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px">${t} Leave</span><span style="font-family:var(--M);font-size:10px;color:var(--accent)">${b.remaining}/${b.total}</span></div>${UI.progress(b.remaining,b.total,'var(--accent)')}</div>`).join('')}
+      </div>
+    </div>`;
+  document.getElementById('view-emp-footer').innerHTML = `
+    <button class="btn btn-ghost" onclick="closeModal('viewEmp')">Close</button>
+    ${Auth.isAdmin()?`<button class="btn btn-ghost" onclick="closeModal('viewEmp');editEmp('${id}')">✏️ Edit</button>
+    <button class="btn btn-danger" onclick="if(confirm('Delete this employee?')){delEmp('${id}');closeModal('viewEmp')}">🗑️ Delete</button>`:''}`;
+  UI.openModal('viewEmp');
+}
+
+function resendCreds(id) {
+  if (!UI.confirm('Resend login credentials to this employee?')) return;
+  const emp = DB.getById('employees', id);
+  if (!emp?.email) { UI.toast('No email on file','error'); return; }
+  UI.toast('Sending credentials…');
+  Mailer.resendCredentials(id, (success, pwd) => {
+    if (success) UI.toast('Credentials resent to '+emp.email+'!');
+    else showCredentialFallback(emp.email, pwd);
+  });
+}
+
+function delEmp(id) {
+  if (!UI.confirm('Delete this employee? This cannot be undone.')) return;
+  const e = DB.getById('employees',id);
+  DB.remove('employees',id);
+  Auth.logActivity('Deleted employee: '+e?.first+' '+e?.last);
+  UI.toast('Employee removed.','error');
+  renderEmps();
+}
+
+
+function showCredentialFallback(email, password) {
+  // Create a temporary modal to show credentials
+  const existing = document.getElementById('cred-fallback-modal');
+  if (existing) existing.remove();
+
+  const div = document.createElement('div');
+  div.id = 'cred-fallback-modal';
+  div.className = 'modal-overlay open';
+  div.innerHTML = `
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">CREDENTIALS CREATED</div>
+          <div class="modal-subtitle">Email failed to send — copy these manually</div>
+        </div>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info" style="margin-bottom:16px">
+          ⚠️ Email delivery failed. Share these credentials with the employee directly.
+        </div>
+        <div style="background:var(--surface);border-radius:6px;padding:18px">
+          <div style="margin-bottom:14px">
+            <div class="form-label" style="margin-bottom:5px">Login Email</div>
+            <div style="font-family:var(--M);font-size:13px;color:var(--text)">${email}</div>
+          </div>
+          <div style="margin-bottom:14px">
+            <div class="form-label" style="margin-bottom:5px">Temporary Password</div>
+            <div style="font-family:var(--M);font-size:16px;color:var(--accent)">${password}</div>
+          </div>
+          <div>
+            <div class="form-label" style="margin-bottom:5px">Portal URL</div>
+            <div style="font-family:var(--M);font-size:11px;color:var(--teal)">${window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/login.html')}</div>
+          </div>
+        </div>
+        <div class="form-hint" style="margin-top:10px">The employee must change this password on first login.</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="navigator.clipboard.writeText('Email: ${email}\nPassword: ${password}');UI.toast('Copied!')">Copy Credentials</button>
+        <button class="btn btn-ghost" onclick="this.closest('.modal-overlay').remove()">Close</button>
+      </div>
+    </div>`;
+  document.body.appendChild(div);
+}
+
+renderEmps();
+</script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ByteStack HR — Payroll</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div class="top-accent"></div>
+<div class="app-layout">
+  <div id="layout-sidebar"></div>
+  <div class="main-area">
+    <div class="topbar" id="topbar"></div>
+    <div class="content-area">
+      <div class="stats-grid stats-3 mb16" id="pay-stats"></div>
+      <div class="grid-main-side">
+        <div>
+          <div class="card mb16">
+            <div class="card-header">
+              <div><div class="card-title">PAYROLL LIST</div><div class="card-subtitle" id="pay-month-sub"></div></div>
+              <div style="display:flex;gap:8px">
+                <select class="form-input" style="width:150px" id="pay-month" onchange="renderPayroll()">
+                  <option>June 2024</option><option>May 2024</option><option>April 2024</option>
+                </select>
+                <button class="btn btn-primary" onclick="runPayroll()">Run Payroll</button>
+                <button class="btn btn-ghost" onclick="exportPayroll()">Export CSV</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table><thead><tr><th>Employee</th><th>Dept</th><th>Base</th><th>HRA</th><th>Transport</th><th>Bonus</th><th>Tax</th><th>EOBI</th><th>Net Pay</th><th>Status</th><th>Payslip</th></tr></thead>
+              <tbody id="pay-tbody"></tbody></table>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">PAYSLIP PREVIEW</div></div>
+            <div id="payslip-preview"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="notif-panel" id="notif-panel"></div>
+
+<!-- PAYSLIP MODAL -->
+<div class="modal-overlay" id="modal-payslip">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">PAYSLIP</div><button class="modal-close" onclick="closeModal('payslip')">✕</button></div>
+    <div class="modal-body" id="payslip-modal-body"></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('payslip')">Close</button><button class="btn btn-primary" onclick="window.print()">🖨️ Print</button></div>
+  </div>
+</div>
+
+<script src="js/auth.js"></script><script src="js/data.js"></script><script src="js/ui.js"></script><script src="js/layout.js"></script>
+<script>
+Layout.init('payroll','Payroll','Salary & compensation');
+
+function renderPayroll(){
+  const payroll=DB.getAll('payroll');
+  const total=payroll.reduce((s,p)=>s+p.net,0);
+  const paid=payroll.filter(p=>p.status==='Paid').length;
+
+  document.getElementById('pay-stats').innerHTML=[
+    {color:'yellow',icon:'💰',num:'PKR '+Math.round(total/1000)+'K',label:'Total Payroll',change:document.getElementById('pay-month')?.value||'June 2024'},
+    {color:'green', icon:'✅',num:paid,label:'Employees Paid',change:payroll.length+' total'},
+    {color:'blue',  icon:'📊',num:'PKR '+Math.round(total/payroll.length/1000)+'K',label:'Average Salary',change:'Gross average'},
+  ].map(s=>`<div class="stat-card ${s.color}"><div class="sc-icon">${s.icon}</div><div class="sc-num">${s.num}</div><div class="sc-label">${s.label}</div><div class="sc-change">${s.change}</div></div>`).join('');
+
+  document.getElementById('pay-tbody').innerHTML=payroll.map(p=>`<tr>
+    <td class="td-bold"><div class="avatar-row">${UI.avatar(p.emp,'Development')}<span>${p.emp}</span></div></td>
+    <td>${p.dept}</td>
+    <td>${UI.formatCurrency(p.base)}</td>
+    <td>${UI.formatCurrency(p.hra)}</td>
+    <td>${UI.formatCurrency(p.transport)}</td>
+    <td style="color:var(--green)">${UI.formatCurrency(p.bonus)}</td>
+    <td style="color:var(--red)">-${UI.formatCurrency(p.tax)}</td>
+    <td style="color:var(--red)">-${UI.formatCurrency(p.eobi)}</td>
+    <td class="td-bold" style="color:var(--accent)">${UI.formatCurrency(p.net)}</td>
+    <td>${UI.badge(p.status)}</td>
+    <td><button class="btn btn-ghost btn-xs" onclick="viewPayslip('${p.id}')">📄</button></td>
+  </tr>`).join('');
+
+  // Default payslip preview
+  if(payroll[0])renderPayslipPreview(payroll[0]);
+}
+
+function renderPayslipPreview(p){
+  document.getElementById('payslip-preview').innerHTML=`
+    <div class="payslip">
+      <div class="payslip-header">
+        <div><div style="font-family:var(--D);font-size:22px">BYTE<span style="color:var(--accent)">STACK</span></div>
+        <div style="font-family:var(--M);font-size:8px;color:var(--text3);margin-top:3px">SALARY SLIP · ${p.month}</div></div>
+        <div style="text-align:right"><div style="font-size:14px;font-weight:600">${p.emp}</div>
+        <div style="font-family:var(--M);font-size:9px;color:var(--text3)">${p.empId} · ${p.dept}</div></div>
+      </div>
+      <div class="payslip-row"><span>Basic Salary</span><span>${UI.formatCurrency(p.base)}</span></div>
+      <div class="payslip-row"><span>House Rent Allowance</span><span>${UI.formatCurrency(p.hra)}</span></div>
+      <div class="payslip-row"><span>Transport Allowance</span><span>${UI.formatCurrency(p.transport)}</span></div>
+      <div class="payslip-row"><span>Performance Bonus</span><span style="color:var(--green)">${UI.formatCurrency(p.bonus)}</span></div>
+      <div class="payslip-row"><span style="color:var(--red)">Income Tax</span><span style="color:var(--red)">- ${UI.formatCurrency(p.tax)}</span></div>
+      <div class="payslip-row"><span style="color:var(--red)">EOBI</span><span style="color:var(--red)">- ${UI.formatCurrency(p.eobi)}</span></div>
+      <div class="payslip-total"><span>Net Salary</span><span class="amount">${UI.formatCurrency(p.net)}</span></div>
+      <div style="font-family:var(--M);font-size:8px;color:var(--text3);margin-top:12px;padding-top:10px;border-top:1px solid var(--border);text-align:center">
+        ByteStack Digital Agency · contact.bytestack@gmail.com · bytestack.io
+      </div>
+    </div>`;
+}
+
+function viewPayslip(id){
+  const p=DB.getById('payroll',id);
+  document.getElementById('payslip-modal-body').innerHTML=`
+    <div class="payslip">
+      <div class="payslip-header">
+        <div><div style="font-family:var(--D);font-size:24px">BYTE<span style="color:var(--accent)">STACK</span></div>
+        <div style="font-family:var(--M);font-size:9px;color:var(--text3);margin-top:3px">OFFICIAL SALARY SLIP · ${p.month}</div></div>
+        <div style="text-align:right"><div style="font-size:15px;font-weight:600">${p.emp}</div>
+        <div style="font-family:var(--M);font-size:9px;color:var(--text3)">${p.empId} · ${p.dept}</div>${UI.badge(p.status)}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+        <div>
+          <div style="font-family:var(--M);font-size:9px;color:var(--text3);letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px">Earnings</div>
+          <div class="payslip-row"><span>Basic Salary</span><span>${UI.formatCurrency(p.base)}</span></div>
+          <div class="payslip-row"><span>HRA</span><span>${UI.formatCurrency(p.hra)}</span></div>
+          <div class="payslip-row"><span>Transport</span><span>${UI.formatCurrency(p.transport)}</span></div>
+          <div class="payslip-row"><span>Bonus</span><span style="color:var(--green)">${UI.formatCurrency(p.bonus)}</span></div>
+          <div class="payslip-row" style="font-weight:600"><span>Gross</span><span>${UI.formatCurrency(p.base+p.hra+p.transport+p.bonus)}</span></div>
+        </div>
+        <div style="padding-left:16px;border-left:1px solid var(--border)">
+          <div style="font-family:var(--M);font-size:9px;color:var(--text3);letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px">Deductions</div>
+          <div class="payslip-row"><span>Income Tax</span><span style="color:var(--red)">${UI.formatCurrency(p.tax)}</span></div>
+          <div class="payslip-row"><span>EOBI</span><span style="color:var(--red)">${UI.formatCurrency(p.eobi)}</span></div>
+          <div class="payslip-row" style="font-weight:600"><span>Total</span><span style="color:var(--red)">${UI.formatCurrency(p.tax+p.eobi)}</span></div>
+        </div>
+      </div>
+      <div class="payslip-total" style="margin-top:14px"><span>NET SALARY</span><span class="amount">${UI.formatCurrency(p.net)}</span></div>
+    </div>`;
+  UI.openModal('payslip');
+}
+
+function runPayroll(){
+  if(!UI.confirm('Process June 2024 payroll for all employees?'))return;
+  DB.getAll('payroll').forEach(p=>DB.update('payroll',p.id,{status:'Paid'}));
+  Auth.logActivity('Payroll processed: '+document.getElementById('pay-month')?.value);
+  UI.toast('Payroll processed successfully!');
+  renderPayroll();
+}
+
+function exportPayroll(){
+  const data=DB.getAll('payroll');
+  const csv=['Employee,Dept,Base,HRA,Transport,Bonus,Tax,EOBI,Net,Status'].concat(
+    data.map(p=>`${p.emp},${p.dept},${p.base},${p.hra},${p.transport},${p.bonus},${p.tax},${p.eobi},${p.net},${p.status}`)
+  ).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='payroll-june-2024.csv';a.click();
+  UI.toast('Exported!');
+}
+
+renderPayroll();
+</script>
+</body>
+</html>

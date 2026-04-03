@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ByteStack HR — Attendance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div class="top-accent"></div>
+<div class="app-layout">
+  <div id="layout-sidebar"></div>
+  <div class="main-area">
+    <div class="topbar" id="topbar"></div>
+    <div class="content-area">
+      <div class="stats-grid stats-4 mb16" id="att-stats"></div>
+      <div class="grid-main-side">
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">ATTENDANCE LOG</div></div>
+            <div style="display:flex;gap:8px">
+              <input type="date" class="form-input" id="att-date" style="width:160px" onchange="renderLog()">
+              <select class="form-input" style="width:160px" onchange="renderLog(undefined,this.value)">
+                <option value="">All Departments</option>
+                <option>Development</option><option>Marketing</option><option>Design</option><option>Content</option><option>Leadership</option>
+              </select>
+              <button class="btn btn-ghost" onclick="exportCSV()">Export CSV</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table><thead><tr><th>Employee</th><th>Dept</th><th>Date</th><th>Check In</th><th>Check Out</th><th>Hours</th><th>Status</th></tr></thead>
+            <tbody id="att-tbody"></tbody></table>
+          </div>
+        </div>
+        <div class="col-gap">
+          <div class="card">
+            <div class="card-header"><div class="card-title">CALENDAR</div><select class="form-input" style="width:130px"><option>June 2024</option><option>May 2024</option></select></div>
+            <div class="cal-header" id="cal-header"></div>
+            <div class="cal-grid" id="cal-grid"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">LATE ARRIVALS</div></div>
+            <div id="late-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="notif-panel" id="notif-panel"></div>
+<script src="js/auth.js"></script><script src="js/data.js"></script><script src="js/ui.js"></script><script src="js/layout.js"></script>
+<script>
+Layout.init('attendance','Attendance','Track team presence');
+
+const today=new Date().toISOString().slice(0,10);
+document.getElementById('att-date').value=today;
+
+function renderStats(){
+  const todayRec=DB.getAll('attendance').filter(r=>r.date===today);
+  const present=todayRec.filter(r=>r.status==='Present').length;
+  const absent=todayRec.filter(r=>r.status==='Absent').length;
+  const onLeave=todayRec.filter(r=>r.status==='Leave').length;
+  const late=todayRec.filter(r=>r.checkIn&&r.checkIn>'09:15').length;
+  document.getElementById('att-stats').innerHTML=[
+    {color:'teal',  icon:'✅',num:present, label:'Present Today'},
+    {color:'red',   icon:'❌',num:absent,  label:'Absent Today'},
+    {color:'orange',icon:'🏖️',num:onLeave, label:'On Leave'},
+    {color:'yellow',icon:'⏰',num:late,    label:'Late Arrivals'},
+  ].map(s=>`<div class="stat-card ${s.color}"><div class="sc-icon">${s.icon}</div><div class="sc-num">${s.num}</div><div class="sc-label">${s.label}</div></div>`).join('');
+}
+
+let filterDept='';
+function renderLog(date,dept){
+  if(dept!==undefined)filterDept=dept;
+  const d=document.getElementById('att-date').value||today;
+  let recs=DB.getAll('attendance').filter(r=>r.date===d);
+  if(filterDept)recs=recs.filter(r=>{const e=DB.getById('employees',r.empId);return e&&e.dept===filterDept;});
+  document.getElementById('att-tbody').innerHTML=recs.length?recs.map(r=>{
+    const e=DB.getById('employees',r.empId);
+    return`<tr>
+      <td class="td-bold"><div class="avatar-row">${UI.avatar(r.emp,e?.dept||'')}<span>${r.emp}</span></div></td>
+      <td>${e?.dept||'—'}</td>
+      <td>${UI.formatDate(r.date)}</td>
+      <td>${r.checkIn||'—'}</td>
+      <td>${r.checkOut||'—'}</td>
+      <td>${r.hours||'—'}</td>
+      <td>${UI.badge(r.status)}</td>
+    </tr>`;}).join(''):`<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">No records for this date</div></div></td></tr>`;
+}
+
+function renderCalendar(){
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  document.getElementById('cal-header').innerHTML=days.map(d=>`<div class="cal-day-label">${d}</div>`).join('');
+  const now=new Date();const yr=now.getFullYear();const mo=now.getMonth();
+  const first=new Date(yr,mo,1).getDay();const last=new Date(yr,mo+1,0).getDate();
+  let html='';
+  for(let i=0;i<first;i++)html+=`<div class="cal-cell off"></div>`;
+  for(let d=1;d<=last;d++){
+    let cls='cal-cell';
+    if(d===now.getDate())cls+=' today';
+    else if([10,11,12].includes(d))cls+=' leave';
+    else if([5,19,26].includes(d))cls+=' has-event';
+    html+=`<div class="${cls}">${d}</div>`;
+  }
+  document.getElementById('cal-grid').innerHTML=html;
+}
+
+function renderLate(){
+  const recs=DB.getAll('attendance').filter(r=>r.date===today&&r.checkIn&&r.checkIn>'09:15');
+  document.getElementById('late-list').innerHTML=recs.length?recs.map(r=>`
+    <div class="avatar-row" style="padding:8px;background:var(--surface);border-radius:6px;margin-bottom:6px">
+      ${UI.avatar(r.emp,'Development')}
+      <div class="avatar-info"><div class="name">${r.emp}</div><div class="sub">Arrived ${r.checkIn} · ${Math.ceil((new Date('1970-01-01T'+r.checkIn)-new Date('1970-01-01T09:00'))/60000)} mins late</div></div>
+    </div>`).join(''):`<div class="empty-state" style="padding:20px"><div class="empty-icon">🎉</div><div class="empty-title">No late arrivals</div></div>`;
+}
+
+function exportCSV(){
+  const d=document.getElementById('att-date').value||today;
+  const recs=DB.getAll('attendance').filter(r=>r.date===d);
+  const csv=['Employee,Date,Check In,Check Out,Hours,Status'].concat(recs.map(r=>`${r.emp},${r.date},${r.checkIn||''},${r.checkOut||''},${r.hours||''},${r.status}`)).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='attendance-'+d+'.csv';a.click();UI.toast('Exported!');
+}
+
+renderStats();renderLog();renderCalendar();renderLate();
+</script>
+</body>
+</html>
