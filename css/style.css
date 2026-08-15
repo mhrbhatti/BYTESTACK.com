@@ -655,6 +655,113 @@ body:hover .cursor { opacity: 1; }
 }
 
 /* ════════════════════════════════════
+   WHY US
+════════════════════════════════════ */
+.why-section { background: var(--bg2); }
+.why-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+.why-card {
+  background: var(--bg2);
+  padding: 48px 40px;
+}
+.why-icon {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+.why-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: 0.01em;
+  margin-bottom: 12px;
+}
+.why-card p {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+/* ════════════════════════════════════
+   SOCIAL MEDIA SECTION
+════════════════════════════════════ */
+.social-section { background: var(--bg); }
+.social-subhead {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 56px 0 24px;
+}
+.social-subhead:first-of-type { margin-top: 0; }
+.insta-embed-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.insta-embed-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  min-height: 400px;
+}
+.insta-embed-card iframe { width: 100% !important; }
+.follow-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+.follow-card {
+  background: var(--bg2);
+  padding: 36px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: var(--transition);
+  text-decoration: none;
+  color: var(--text);
+}
+.follow-card:hover { background: var(--bg3); }
+.follow-icon {
+  width: 48px; height: 48px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--accent);
+  transition: var(--transition);
+}
+.follow-card:hover .follow-icon { border-color: var(--accent); background: var(--accent); color: #000; }
+.follow-card h4 { font-family: var(--font-display); font-size: 1.3rem; letter-spacing: 0.01em; }
+.follow-card span { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); word-break: break-word; }
+.follow-card .follow-arrow { margin-top: auto; font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-dim); }
+
+@media (max-width: 900px) {
+  .insta-embed-grid { grid-template-columns: 1fr; }
+  .follow-grid { grid-template-columns: repeat(2, 1fr); }
+  .why-grid { grid-template-columns: 1fr; }
+}
+
+/* ════════════════════════════════════
    FAQ
 ════════════════════════════════════ */
 .faq-section { background: var(--bg); }
@@ -1097,6 +1204,10 @@ body:hover .cursor { opacity: 1; }
   font-family: var(--font-display);
   font-size: 4rem;
   line-height: 1;
+}
+.package-price .amount.quote-amount {
+  font-size: 2.1rem;
+  letter-spacing: 0.02em;
 }
 .package-price .period {
   font-family: var(--font-mono);
