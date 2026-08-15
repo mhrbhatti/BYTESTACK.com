@@ -138,6 +138,30 @@
 [data-theme="light"] .client-info span       { color: #666; }
 
 /* ════════════════════════════════════
+   WHY US
+════════════════════════════════════ */
+[data-theme="light"] .why-section          { background: #eaeae5; }
+[data-theme="light"] .why-grid             { background: rgba(0,0,0,0.08); }
+[data-theme="light"] .why-card             { background: #eaeae5; }
+[data-theme="light"] .why-icon             { background: #111; color: #f5f5f1; }
+[data-theme="light"] .why-card h3          { color: #0d0d0d; }
+[data-theme="light"] .why-card p           { color: #3a3a3a; }
+
+/* ════════════════════════════════════
+   SOCIAL MEDIA SECTION
+════════════════════════════════════ */
+[data-theme="light"] .social-section       { background: #f5f5f1; }
+[data-theme="light"] .social-subhead       { color: #888; }
+[data-theme="light"] .insta-embed-card     { background: #eaeae5; border-color: rgba(0,0,0,0.1); }
+[data-theme="light"] .follow-grid          { background: rgba(0,0,0,0.08); }
+[data-theme="light"] .follow-card          { background: #eaeae5; color: #0d0d0d; }
+[data-theme="light"] .follow-card:hover    { background: #e0e0db; }
+[data-theme="light"] .follow-icon          { border-color: rgba(0,0,0,0.15); color: #111; }
+[data-theme="light"] .follow-card:hover .follow-icon { border-color: #111; background: #111; color: #f5f5f1; }
+[data-theme="light"] .follow-card span     { color: #888; }
+[data-theme="light"] .follow-card .follow-arrow { color: #555; }
+
+/* ════════════════════════════════════
    FAQ SECTION
 ════════════════════════════════════ */
 [data-theme="light"] .faq-section            { background: #f5f5f1; }
